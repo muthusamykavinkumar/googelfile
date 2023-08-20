@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Read Data from Google Sheets Web App</title>
+</head>
+<body>
+    <ul id="data-list"></ul>
+    <script>
+        // Replace with your actual Google Apps Script web app URL
+        const scriptAppURL = 'https://script.google.com/macros/s/AKfycbwOY8zvfqRYjjpII7eq4JOvxgyBUN6IKWKoG2G4i0jckTm7gAxlQ51xg_-k2g3bLQNPtw/exec';
+
+        const dataList = document.getElementById('data-list');
+
+        // Fetch data from the Google Apps Script web app
+        fetch(scriptAppURL)
+            .then(response => response.json())
+            .then(data => {
+                const values = data;
+                console.log(values);
+              // this is use to show the value in html page
+                // if (values && values.length > 0) {
+                //     values.forEach(row => {
+                //         const listItem = document.createElement('li');
+                //         listItem.textContent = JSON.stringify(row);
+                //         dataList.appendChild(listItem);
+                      
+                //     });
+                // } else {list
+                //     const noDataItem = document.createElement('li');
+                //     noDataItem.textContent = 'No data available.';
+                //     dataList.appendChild(noDataItem);
+                // }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    </script>
+</body>
+</html>
+
+
+
+<!--App script
+ const sheetName = 'Sheet1';
+
+function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+
+  const headers = data[0];
+  const values = data.slice(1);
+
+  const result = values.map(row => {
+    const rowData = {};
+    headers.forEach((header, index) => {
+      rowData[header] = row[index];
+    });
+    return rowData;
+  });
+
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+ -->
