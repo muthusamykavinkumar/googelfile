@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Read Data from Google Sheets Web App</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+    <form class="w3-container w3-card-4" method="post" name="condact">
+        <h2 class="w3-text-blue">Input Form</h2>
+        <p>      
+          <label class="w3-text-blue"><b> Name</b></label>
+          <input class="w3-input w3-border" name="name" type="text" placeholder="abcd" required> </p>
+          <p>      
+            <label class="w3-text-blue"><b>Email</b></label>
+            <input class="w3-input w3-border" name="email" type="email" placeholder="abcd123@gmail.com" required> </p>
+        <p>      
+          <!-- <label class="w3-text-blue"><b> Number</b></label>
+        <input class="w3-input w3-border" name="number" type="file"" required> </p> -->
+        <p>      
+          <label class="w3-text-blue"><b>Message</b></label>
+        <input class="w3-input w3-border" name="message" type="text" placeholder="hi i am abcd" required> </p>
+        <input class="w3-btn w3-blue" type="submit" value="send">
+    </form>
+
+    <ul id="data-list"></ul>
+    
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbylBWtXiIRqhyryBpojy7x9yYxML5-VCDMdb983AAwNVwbfTKPnzv30TIKrzQXpiKzVQA/exec';
+        const scriptAppURL = 'https://script.google.com/macros/s/AKfycbylBWtXiIRqhyryBpojy7x9yYxML5-VCDMdb983AAwNVwbfTKPnzv30TIKrzQXpiKzVQA/exec';
+        const form = document.forms['condact'];
+        const dataList = document.getElementById('data-list');
+
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const formData = new FormData(form);
+          const email = formData.get('email'); // Get the email value from the form
+          
+          // Check if the email is already in the data fetched from the Google Apps Script
+          if (checkEmailInData(email)) {
+            alert("Email already exists. Please use a different email.");
+          } else {
+            // If email is not in the data, proceed with submitting the form
+            fetch(scriptURL, { method: 'POST', body: formData })
+              .then(response => alert("Thank you! your form is submitted successfully." ))
+              .then(() => { window.location.reload(); })
+              .catch(error => console.error('Error!', error.message));
+          }
+        });
+
+        // Function to check if email exists in the data fetched from the Google Apps Script
+        function checkEmailInData(email) {
+          const dataListItems = dataList.querySelectorAll('li');
+          for (let i = 0; i < dataListItems.length; i++) {
+            const listItemText = dataListItems[i].textContent;
+            if (listItemText.includes(email)) {
+              return true; // Email already exists
+            }
+          }
+          return false; // Email not found
+        }
+
+        fetch(scriptAppURL)
+            .then(response => response.json())
+            .then(data => {
+                const values = data;
+                console.log(values);
+
+                if (values && values.length > 0) {
+                    values.forEach(row => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = JSON.stringify(row);
+                        dataList.appendChild(listItem);
+                    });
+                } else {
+                    const noDataItem = document.createElement('li');
+                    noDataItem.textContent = 'No data available.';
+                    dataList.appendChild(noDataItem);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- const sheetName = 'Sheet1';
+const scriptProp = PropertiesService.getScriptProperties();
+
+function intialSetup () {
+  const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  scriptProp.setProperty('key', activeSpreadsheet.getId());
+}
+
+function doGet() {
+  const sheet = SpreadsheetApp.openById(scriptProp.getProperty('key')).getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+
+  const headers = data[0];
+  const values = data.slice(1);
+
+  const result = values.map(row => {
+    const rowData = {};
+    headers.forEach((header, index) => {
+      rowData[header] = row[index];
+    });
+    return rowData;
+  });
+
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+
+  try {
+    const doc = SpreadsheetApp.openById(scriptProp.getProperty('key'));
+    const sheet = doc.getSheetByName(sheetName);
+
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const nextRow = sheet.getLastRow() + 1;
+
+    const newRow = headers.map(function(header) {
+      return header === 'Date' ? new Date() : e.parameter[header];
+    });
+
+    sheet.getRange(nextRow, 1, 1, newRow.length).setValues([newRow]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ 'result': 'success', 'row': nextRow }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (e) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ 'result': 'error', 'error': e }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+ -->
