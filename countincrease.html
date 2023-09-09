@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <form method="post" name="visitor">
+        <input type="submit" value="Submit">
+    </form>
+    <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwJ_WZNavBgg0sit5wtEzFoEeYg-L5YFiFdtrei9rwQABA17XZgzO9mB6pssMG1UuQlgg/exec';
+    const form = document.forms['visitor'];
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === 'success') {
+          alert(`Thank you! Your form is submitted successfully. New value in A1: ${data.newValue}`);
+          window.location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      })
+      .catch(error => console.error('Error!', error.message));
+    });
+    </script>
+</body>
+</html>
