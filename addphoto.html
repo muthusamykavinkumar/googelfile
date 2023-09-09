@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Image to Google Sheets</title>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <form id="imageForm">
+        <input type="file" id="imageInput" accept="image/*" />
+        <input type="button" value="Upload" id="uploadButton" />
+    </form>
+    <div id="status"></div>
+
+    <!-- Include the Google API Client Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // Initialize the Google Sheets API
+        gapi.load('client', initClient);
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: 'YOUR_API_KEY', // Replace with your API key
+                clientId: 'YOUR_CLIENT_ID', // Replace with your Client ID
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                scope: 'https://www.googleapis.com/auth/spreadsheets',
+            }).then(function () {
+                document.getElementById('uploadButton').addEventListener('click', uploadImage);
+            });
+        }
+
+        function uploadImage() {
+            const imageInput = document.getElementById('imageInput');
+            const file = imageInput.files[0];
+
+            if (file) {
+                // Create a new Google Sheet and insert the image URL
+                gapi.client.sheets.spreadsheets.values.append({
+                    spreadsheetId: 'YOUR_SPREADSHEET_ID', // Replace with your spreadsheet ID
+                    range: 'Sheet1', // Replace with your sheet name
+                    valueInputOption: 'RAW',
+                    insertDataOption: 'INSERT_ROWS',
+                    resource: {
+                        values: [[file.name, '', '']] // Insert image file name
+                    }
+                }).then(function (response) {
+                    const range = response.result.updates.updatedRange;
+                    const sheetId = range.substring(range.lastIndexOf('/') + 1);
+                    const imageURL = `https://drive.google.com/uc?id=${sheetId}`;
+
+                    // Display the image URL
+                    document.getElementById('status').innerHTML = `<p>Image uploaded successfully!</p><img src="${imageURL}" />`;
+                }, function (error) {
+                    console.error(`Error uploading image: ${error.result.error.message}`);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
